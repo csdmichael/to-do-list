@@ -169,4 +169,8 @@ input[type="tel"] {
   .todo {
     grid-template-columns: auto auto 1fr;
   }
+
+  .todo button {
+    grid-column: 1 / -1;
+  }
 }

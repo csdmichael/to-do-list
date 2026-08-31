@@ -50,7 +50,8 @@ class AzureSmsClient {
     const xmsDate = new Date().toUTCString();
     const contentHash = createHash('sha256').update(body).digest('base64');
     const host = url.host;
-    const stringToSign = `POST\n${url.pathname}${url.search}\n${xmsDate};${host};${contentHash}`;
+    const signedHeaderValues = [xmsDate, host, contentHash].join(';');
+    const stringToSign = ['POST', `${url.pathname}${url.search}`, signedHeaderValues].join('\n');
     const signature = createHmac('sha256', Buffer.from(this.accessKey, 'base64'))
       .update(stringToSign)
       .digest('base64');
