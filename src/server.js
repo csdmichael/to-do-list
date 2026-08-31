@@ -116,7 +116,9 @@ function serveStatic(pathname, response, publicDir) {
     'Content-Type': contentType(filePath),
     'Cache-Control': filePath.endsWith('index.html') ? 'no-cache' : 'public, max-age=3600'
   });
-  createReadStream(filePath).pipe(response);
+  const stream = createReadStream(filePath);
+  stream.on('error', (error) => response.destroy(error));
+  stream.pipe(response);
 }
 
 function contentType(filePath) {
