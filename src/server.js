@@ -112,13 +112,20 @@ function serveStatic(pathname, response, publicDir) {
     return sendJson(response, 404, { error: 'Not found.' });
   }
 
-  response.writeHead(200, {
-    'Content-Type': contentType(filePath),
-    'Cache-Control': filePath.endsWith('index.html') ? 'no-cache' : 'public, max-age=3600'
-  });
   const stream = createReadStream(filePath);
-  stream.on('error', (error) => response.destroy(error));
-  stream.pipe(response);
+  stream.on('open', () => {
+    response.writeHead(200, {
+      'Content-Type': contentType(filePath),
+      'Cache-Control': filePath.endsWith('index.html') ? 'no-cache' : 'public, max-age=3600'
+    });
+    stream.pipe(response);
+  });
+  stream.on('error', (error) => {
+    if (!response.headersSent) {
+      return sendJson(response, 500, { error: 'Unable to read static file.' });
+    }
+    return response.destroy(error);
+  });
 }
 
 function contentType(filePath) {
