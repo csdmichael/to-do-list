@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>To do list reminders</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero" aria-labelledby="page-title">
+        <p class="eyebrow">Dev environment</p>
+        <h1 id="page-title">To-do list reminders</h1>
+        <p>Add tasks, choose the ones you want, and send the list to a phone number.</p>
+      </section>
+
+      <section class="card" aria-labelledby="add-task-title">
+        <h2 id="add-task-title">Add a task</h2>
+        <form id="todo-form" class="inline-form">
+          <label class="sr-only" for="task-input">Task</label>
+          <input id="task-input" name="task" type="text" maxlength="500" placeholder="Pick up groceries" required />
+          <button type="submit">Add</button>
+        </form>
+      </section>
+
+      <section class="card" aria-labelledby="tasks-title">
+        <div class="section-header">
+          <h2 id="tasks-title">Tasks</h2>
+          <button id="select-all" type="button" class="secondary">Select all</button>
+        </div>
+        <ul id="todo-list" class="todo-list" aria-live="polite"></ul>
+        <p id="empty-state" class="empty-state">No tasks yet. Add your first reminder above.</p>
+      </section>
+
+      <section class="card" aria-labelledby="send-title">
+        <h2 id="send-title">Send reminder</h2>
+        <form id="reminder-form" class="inline-form">
+          <label class="sr-only" for="phone-input">Phone number</label>
+          <input id="phone-input" name="phone" type="tel" inputmode="tel" placeholder="+15551234567" required />
+          <button type="submit">Send selected</button>
+        </form>
+        <p class="hint">Use E.164 format. Phone numbers are used only for delivery and are not stored.</p>
+      </section>
+
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+    </main>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
