@@ -11,13 +11,15 @@ let todos = [];
 
 todoForm.addEventListener('submit', async (event) => {
   event.preventDefault();
-  await request('/api/todo', {
-    method: 'POST',
-    body: JSON.stringify({ task: taskInput.value })
+  await runSafely(async () => {
+    await request('/api/todo', {
+      method: 'POST',
+      body: JSON.stringify({ task: taskInput.value })
+    });
+    taskInput.value = '';
+    await loadTodos();
+    showStatus('Task added.');
   });
-  taskInput.value = '';
-  await loadTodos();
-  showStatus('Task added.');
 });
 
 selectAllButton.addEventListener('click', () => {
@@ -28,12 +30,14 @@ selectAllButton.addEventListener('click', () => {
 
 reminderForm.addEventListener('submit', async (event) => {
   event.preventDefault();
-  const taskIds = [...document.querySelectorAll('[data-select-task]:checked')].map((checkbox) => checkbox.value);
-  const response = await request('/api/reminder', {
-    method: 'POST',
-    body: JSON.stringify({ phoneNumber: phoneInput.value, taskIds })
+  await runSafely(async () => {
+    const taskIds = [...document.querySelectorAll('[data-select-task]:checked')].map((checkbox) => checkbox.value);
+    const response = await request('/api/reminder', {
+      method: 'POST',
+      body: JSON.stringify({ phoneNumber: phoneInput.value, taskIds })
+    });
+    showStatus(`Sent ${response.reminder.taskCount} task(s) with ${response.reminder.provider}.`);
   });
-  showStatus(`Sent ${response.reminder.taskCount} task(s) with ${response.reminder.provider}.`);
 });
 
 async function loadTodos() {
@@ -60,7 +64,7 @@ function renderTodos() {
     complete.type = 'checkbox';
     complete.checked = todo.completed;
     complete.ariaLabel = `Mark ${todo.task} complete`;
-    complete.addEventListener('change', () => updateTodo(todo.id, { completed: complete.checked }));
+    complete.addEventListener('change', () => runSafely(() => updateTodo(todo.id, { completed: complete.checked })));
 
     const task = document.createElement('span');
     task.textContent = todo.task;
@@ -72,7 +76,7 @@ function renderTodos() {
     edit.addEventListener('click', async () => {
       const nextTask = prompt('Edit task', todo.task);
       if (nextTask !== null) {
-        await updateTodo(todo.id, { task: nextTask });
+        await runSafely(() => updateTodo(todo.id, { task: nextTask }));
       }
     });
 
@@ -80,7 +84,7 @@ function renderTodos() {
     remove.type = 'button';
     remove.className = 'danger';
     remove.textContent = 'Delete';
-    remove.addEventListener('click', () => deleteTodo(todo.id));
+    remove.addEventListener('click', () => runSafely(() => deleteTodo(todo.id)));
 
     item.append(select, complete, task, edit, remove);
     todoList.append(item);
@@ -125,4 +129,12 @@ function showStatus(message, isError = false) {
   statusMessage.className = isError ? 'status error' : 'status';
 }
 
-loadTodos().catch((error) => showStatus(error.message, true));
+async function runSafely(action) {
+  try {
+    await action();
+  } catch (error) {
+    showStatus(error.message, true);
+  }
+}
+
+runSafely(loadTodos);
