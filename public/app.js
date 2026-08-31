@@ -118,7 +118,6 @@ async function request(url, options = {}) {
 
   const body = await response.json();
   if (!response.ok) {
-    showStatus(body.error || 'Request failed.', true);
     throw new Error(body.error || 'Request failed.');
   }
   return body;

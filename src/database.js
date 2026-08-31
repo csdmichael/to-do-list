@@ -77,7 +77,7 @@ export class TodoStore {
   }
 }
 
-export function normalizeTask(task) {
+function normalizeTask(task) {
   if (typeof task !== 'string') {
     throw new ValidationError('Task text is required.');
   }

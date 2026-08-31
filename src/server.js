@@ -1,5 +1,5 @@
 import { createReadStream, existsSync } from 'node:fs';
-import { extname, resolve, sep } from 'node:path';
+import { extname, isAbsolute, relative, resolve } from 'node:path';
 import { createServer as createHttpServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { TodoStore, ValidationError } from './database.js';
@@ -108,7 +108,8 @@ function serveStatic(pathname, response, publicDir) {
   const safePath = pathname === '/' ? '/index.html' : pathname;
   const root = resolve(publicDir);
   const filePath = resolve(root, `.${safePath}`);
-  if (!filePath.startsWith(`${root}${sep}`) || !existsSync(filePath)) {
+  const relativePath = relative(root, filePath);
+  if (relativePath.startsWith('..') || isAbsolute(relativePath) || !existsSync(filePath)) {
     return sendJson(response, 404, { error: 'Not found.' });
   }
 
