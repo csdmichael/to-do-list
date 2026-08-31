@@ -24,6 +24,7 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
   location: location
   kind: 'app,linux'
   properties: {
+    httpsOnly: true
     serverFarmId: plan.id
     siteConfig: {
       linuxFxVersion: 'NODE|22-lts'
