@@ -81,6 +81,14 @@ test('static file server rejects path traversal', async (t) => {
   assert.equal(response.body.error, 'Not found.');
 });
 
+test('serves the to-do reminder UI', async (t) => {
+  const app = await startTestApp(t);
+  const response = await app.request('/');
+
+  assert.equal(response.status, 200);
+  assert.match(response.text, /To-do list reminders/);
+});
+
 async function startTestApp(t, options = {}) {
   const directory = mkdtempSync(join(tmpdir(), 'todo-api-'));
   const store = new TodoStore(join(directory, 'todos.sqlite'));
@@ -102,7 +110,8 @@ async function startTestApp(t, options = {}) {
       const text = await response.text();
       return {
         status: response.status,
-        body: text ? JSON.parse(text) : null
+        body: response.headers.get('content-type')?.includes('application/json') && text ? JSON.parse(text) : null,
+        text
       };
     }
   };
